@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Dashboard - CinePulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h1 class="logo" style="font-size: 3rem;">📊 Live Analytics</h1>
+            <div id="liveBadge" class="sentiment-badge sentiment-positive" style="font-size: 1.2rem; padding: 1rem 2rem;">
+                LIVE • <span id="liveCount">0</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+            <div class="summary-card" style="text-align: center;">
+                <h3 style="color: #94a3b8;">Total Feedbacks</h3>
+                <div id="totalFeedback" style="font-size: 3.5rem; font-weight: 800; color: #3b82f6;">0</div>
+            </div>
+            <div class="summary-card" style="text-align: center;">
+                <h3 style="color: #94a3b8;">Avg Rating</h3>
+                <div id="avgRating" style="font-size: 3.5rem; font-weight: 800; color: #fbbf24;">0⭐</div>
+            </div>
+        </div>
+
+        <div class="summary-card" style="max-width: 1000px; margin: 0 auto 3rem auto;">
+            <h3 style="text-align: center;">Movie Ratings</h3>
+            <canvas id="ratingChart" height="100"></canvas>
+        </div>
+
+        <div class="summary-card" style="max-width: 1200px; margin: 0 auto;">
+            <h3 style="text-align: center;">Movie Stats</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: rgba(59,130,246,0.2);">
+                    <tr><th style="padding: 1rem; text-align: left;">Movie</th><th style="padding: 1rem; text-align: center;">⭐</th><th style="padding: 1rem;">Total</th><th style="padding: 1rem;">😊</th><th style="padding: 1rem;">😐</th><th style="padding: 1rem;">😞</th></tr>
+                </thead>
+                <tbody id="movieTable"></tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="{{ url_for('home') }}" class="btn-primary" style="padding: 1rem 3rem;">← Customer Flow</a>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        function initChart() {
+            const ctx = document.getElementById('ratingChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: 'rgba(59,130,246,0.8)', borderColor: '#3b82f6', borderRadius: 8 }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true, max: 5 } }, plugins: { legend: { display: false } } }
+            });
+        }
+        function updateData() {
+            fetch('/api/stats').then(r => r.json()).then(data => {
+                document.getElementById('totalFeedback').textContent = data.total_feedback;
+                document.getElementById('avgRating').textContent = data.avg_rating + '⭐';
+                document.getElementById('liveCount').textContent = data.live_count;
+                chart.data.labels = data.movies.map(m => m.title);
+                chart.data.datasets[0].data = data.movies.map(m => m.rating);
+                chart.update('none');
+                document.getElementById('movieTable').innerHTML = data.movies.map(m => 
+                    `<tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 1rem; font-weight: 600;">${m.title}</td>
+                        <td style="padding: 1rem; text-align: center; color: #fbbf24;">${m.rating}⭐</td>
+                        <td style="padding: 1rem; text-align: center;">${m.total}</td>
+                        <td style="padding: 1rem; text-align: center; color: #22c55e;">${m.positive}</td>
+                        <td style="padding: 1rem; text-align: center; color: #94a3b8;">${m.neutral}</td>
+                        <td style="padding: 1rem; text-align: center; color: #ef4444;">${m.negative}</td>
+                    </tr>`).join('');
+            });
+        }
+        window.onload = () => { initChart(); updateData(); setInterval(updateData, 3000); };
+    </script>
+</body>
+</html>
+
