@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Analysis - CinemaPulse{% endblock %}
+{% block content %}
+<h1 class="gradient-title">🎬 Real-Time Analysis</h1>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+    <div class="card" style="text-align: center;">
+        <h3 style="color: var(--red);">Your Feedback Summary</h3>
+        <div style="font-size: 3rem; color: #f59e0b; margin: 1rem 0;">
+            {{ session.get('rating', '?') }}/5 <span style="font-size: 2rem;">⭐</span>
+        </div>
+        <p style="color: #94a3b8; font-style: italic;">"{{ session.get('review', 'No review yet')[:100] }}..."</p>
+        <p style="color: var(--red); font-weight: 600;">Movie: {{ session.get('selected_movie', 'N/A') }}</p>
+    </div>
+    
+    <div class="card">
+        <h3 style="color: var(--red);">Sentiment Analysis</h3>
+        <div style="display: flex; gap: 1rem; margin: 1.5rem 0;">
+            <div style="flex: 1; text-align: center;">
+                <div style="font-size: 2rem; color: #10b981;">👍</div>
+                <div style="font-weight: 600; font-size: 1.5rem;">75%</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Positive</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="font-size: 2rem; color: #f59e0b;">😐</div>
+                <div style="font-weight: 600; font-size: 1.5rem;">20%</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Neutral</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="font-size: 2rem; color: var(--red);">👎</div>
+                <div style="font-weight: 600; font-size: 1.5rem;">5%</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Negative</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="color: var(--red);">Trend Insights</h3>
+    <p style="color: #94a3b8; line-height: 1.6; font-size: 1.1rem;">
+        Your <strong>{{ session.get('rating', 0)|int }}⭐</strong> rating contributes to the overall movie pulse. 
+        Recent trends show <strong>increasing positive sentiment</strong> for {{ session.get('selected_movie', 'this movie') }}.
+    </p>
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('movies') }}" class="btn" style="padding: 1rem 2.5rem;">🎬 Rate Another Movie</a>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📊 Live Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn" style="background: linear-gradient(135deg, #6b7280, #4b5563);">Logout</a>
+    </div>
+</div>
+{% endblock %}

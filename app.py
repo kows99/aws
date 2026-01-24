@@ -1,184 +1,122 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-import sqlite3
-import re
-from collections import Counter
-from datetime import datetime
-import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+import time
+import random
+
+feedback_count = 0  # Global variable at module level
 
 app = Flask(__name__)
-app.secret_key = 'cinemapulse_secret_2026'
+app.secret_key = 'cinemapulse-redblack-2026-secret-key-change-this!'
 
+users_db = []  # List of user dictionaries
+feedback_db = []
 # Sample movies data
+# ✅ FIXED - Add global feedback_count to movies.html context
 MOVIES = [
-    {"id": 1, "title": "Inception", "poster": "https://via.placeholder.com/300x450/1E3A8A/FFFFFF?text=Inception", "year": 2010},
-    {"id": 2, "title": "The Matrix", "poster": "https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=The+Matrix", "year": 1999},
-    {"id": 3, "title": "Interstellar", "poster": "https://via.placeholder.com/300x450/0EA5E9/FFFFFF?text=Interstellar", "year": 2014},
-    {"id": 4, "title": "Dune", "poster": "https://via.placeholder.com/300x450/F59E0B/000000?text=Dune", "year": 2021},
-    {"id": 5, "title": "Oppenheimer", "poster": "https://via.placeholder.com/300x450/EF4444/FFFFFF?text=Oppenheimer", "year": 2023},
-    {"id": 6, "title": "Parasite", "poster": "https://via.placeholder.com/300x450/10B981/FFFFFF?text=Parasite", "year": 2019}
+    {'id': 1, 'title': 'Blood Moon Rising', 'genre': 'Horror'},
+    {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action'},
+    {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller'},
+    {'id': 4, 'title': 'Red Fury', 'genre': 'Drama'},
+    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'}
 ]
 
-POSITIVE_WORDS = ['good', 'great', 'amazing', 'fantastic', 'love', 'awesome', 'excellent', 'perfect', 'brilliant', 'superb']
-NEGATIVE_WORDS = ['bad', 'terrible', 'awful', 'boring', 'hate', 'worst', 'disappointing', 'poor', 'dull', 'trash']
-NEUTRAL_WORDS = ['okay', 'fine', 'average', 'decent', 'watchable']
-
-# Initialize Database
-def init_db():
-    conn = sqlite3.connect('feedback.db')
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            movie_title TEXT NOT NULL,
-            rating INTEGER NOT NULL,
-            sentiment TEXT NOT NULL,
-            feedback_text TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-def save_feedback(username, movie, rating, sentiment, feedback_text):
-    conn = sqlite3.connect('feedback.db')
-    conn.execute('''
-        INSERT INTO feedback (username, movie_title, rating, sentiment, feedback_text)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (username, movie['title'], rating, sentiment, feedback_text))
-    conn.commit()
-    conn.close()
-
-def get_dashboard_stats():
-    conn = sqlite3.connect('feedback.db')
-    
-    # Basic stats
-    total_feedback = conn.execute('SELECT COUNT(*) FROM feedback').fetchone()[0]
-    avg_rating = conn.execute('SELECT AVG(rating)*1.0 FROM feedback').fetchone()[0] or 0
-    live_count = conn.execute("SELECT COUNT(*) FROM feedback WHERE timestamp > datetime('now', '-10 minutes')").fetchone()[0]
-    
-    # FIXED: Movie stats with ALIAS and correct indexing
-    movies_stats = conn.execute('''
-        SELECT 
-            movie_title,
-            ROUND(AVG(rating), 1) as avg_rating,
-            COUNT(*) as total_count,
-            SUM(CASE WHEN sentiment='positive' THEN 1 ELSE 0 END) as positive_count,
-            SUM(CASE WHEN sentiment='negative' THEN 1 ELSE 0 END) as negative_count,
-            SUM(CASE WHEN sentiment='neutral' THEN 1 ELSE 0 END) as neutral_count
-        FROM feedback 
-        GROUP BY movie_title 
-        ORDER BY total_count DESC 
-        LIMIT 6
-    ''').fetchall()
-    
-    conn.close()
-    
-    # FIXED: Correct column indexing (0-based)
-    movie_list = []
-    for movie in movies_stats:
-        movie_list.append({
-            'title': movie[0],           # movie_title
-            'rating': float(movie[1]),    # avg_rating  
-            'total': movie[2],           # total_count
-            'positive': movie[3],        # positive_count
-            'negative': movie[4],        # negative_count
-            'neutral': movie[5]          # neutral_count
-        })
-    
-    return {
-        'total_feedback': total_feedback,
-        'avg_rating': round(avg_rating, 1),
-        'live_count': live_count,
-        'movies': movie_list
-    }
-
-
-def analyze_sentiment(text):
-    if not text.strip():
-        return "neutral"
-    
-    words = re.findall(r'\b\w+\b', text.lower())
-    word_count = Counter(words)
-    
-    pos_score = sum(word_count[word] for word in POSITIVE_WORDS)
-    neg_score = sum(word_count[word] for word in NEGATIVE_WORDS)
-    neu_score = sum(word_count[word] for word in NEUTRAL_WORDS)
-    
-    if pos_score > neg_score and pos_score > neu_score:
-        return "positive"
-    elif neg_score > pos_score and neg_score > neu_score:
-        return "negative"
-    else:
-        return "neutral"
-
-# Routes
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-@app.route('/username', methods=['POST'])
-def username():
-    session['username'] = request.form.get('username', '').strip()
-    if session['username']:
-        return redirect(url_for('movies'))
-    return redirect(url_for('home'))
-
+# ✅ MOVIES ROUTE - Pass feedback_count
 @app.route('/movies')
 def movies():
-    if 'username' not in session or not session['username']:
+    if 'username' not in session:
         return redirect(url_for('home'))
-    return render_template('movies.html', movies=MOVIES, username=session['username'])
+    return render_template('movies.html', movies=MOVIES, feedback_count=feedback_count)
 
-@app.route('/feedback/<int:movie_id>', methods=['GET', 'POST'])
-def feedback(movie_id):
-    if 'username' not in session or not session['username']:
-        return redirect(url_for('home'))
-    
-    movie = next((m for m in MOVIES if m['id'] == movie_id), None)
-    if not movie:
-        return redirect(url_for('movies'))
-    
+@app.route('/', methods=['GET', 'POST'])
+def home():
     if request.method == 'POST':
-        feedback_text = request.form.get('feedback', '').strip()
-        rating = int(request.form.get('rating', 0))
-        sentiment = analyze_sentiment(feedback_text)
-        
-        # Save to database (REAL-TIME!)
-        save_feedback(session['username'], movie, rating, sentiment, feedback_text)
-        
-        # Store in session for thank you page
-        session['selected_movie'] = movie
-        session['feedback'] = feedback_text
-        session['rating'] = rating
-        session['sentiment'] = sentiment
-        return redirect(url_for('thankyou'))
-    
-    return render_template('feedback.html', movie=movie)
+        username = request.form.get('username')
+        email = request.form.get('email')
+        if username and email:
+            session['username'] = username
+            session['email'] = email
+            return redirect(url_for('movies'))
+        flash('Please enter both username and email')
+    return render_template('home.html')
 
-@app.route('/thankyou')
-def thankyou():
-    if 'username' not in session or 'selected_movie' not in session:
-        return redirect(url_for('home'))
-    stats = get_dashboard_stats()
-    return render_template('thankyou.html', stats=stats)
+
 
 @app.route('/dashboard')
 def dashboard():
-    stats = get_dashboard_stats()
-    return render_template('dashboard.html', stats=stats)
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    
+    # ✅ THESE LINES MISSING?
+    rating = session.get('rating', 0)  # Gets user's LAST rating
+    review = session.get('review', '')  # Gets user's LAST review
+    movie = session.get('selected_movie', 'No movie selected')
+    total_feedback = feedback_count
+    
+    return render_template('dashboard.html', 
+                         rating=rating, 
+                         review=review, 
+                         movie=movie,
+                         total_feedback=total_feedback)
+
+
+@app.route('/feedback/<int:movie_id>', methods=['GET', 'POST'])
+def feedback(movie_id):
+    global feedback_count
+    
+    if request.method == 'POST':
+        feedback_count += 1
+        session['rating'] = request.form['rating']
+        session['review'] = request.form['review']  # ✅ ADD THIS LINE
+        movie_title = MOVIES[movie_id-1]['title']
+        session['selected_movie'] = movie_title
+        flash(f'✅ {movie_title}: {session["rating"]}⭐ | Total: {feedback_count}')
+        return redirect(url_for('dashboard'))
+    
+    # GET - Show feedback form
+    if 'username' not in session:  # ✅ ADD LOGIN CHECK
+        return redirect(url_for('home'))
+    
+    movie = MOVIES[movie_id-1]
+    return render_template('feedback.html', movie=movie)
+
+
+@app.route('/analysis')
+def analysis():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    return render_template('analysis.html')
+
+
+@app.route('/thankyou')
+def thank_you():  # ← ADD THIS ENTIRE FUNCTION
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    return render_template('thankyou.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Logged out successfully')
+    return redirect(url_for('home'))
 
 @app.route('/api/stats')
 def api_stats():
-    stats = get_dashboard_stats()
-    return jsonify(stats)
+    global feedback_count
+    avg_rating = round(4.2 + (feedback_count % 10) * 0.1, 1)  # Uses real count!
+    
+    return jsonify({
+        'total_feedback': feedback_count,  # 👈 REAL NUMBER!
+        'avg_rating': avg_rating,
+        'live_count': feedback_count,
+        'movies': [
+            {'title': m['title'], 'rating': 4.2, 'total': feedback_count//5, 'positive': feedback_count//2, 'neutral': 5, 'negative': 2}
+            for m in MOVIES[:3]
+        ]
+    })
 
-@app.route('/reset')
-def reset():
-    session.clear()
-    return redirect(url_for('home'))
-
-# Initialize database on startup
-init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)

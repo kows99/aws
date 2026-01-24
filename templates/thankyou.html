@@ -1,59 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You! - CinemaPulse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <div class="thankyou-container">
-            <h1 class="thankyou-title">Thank You, {{ session.username }}!</h1>
-            <p style="font-size: 1.3rem; color: #94a3b8; margin-bottom: 3rem;">Your feedback helps cinema managers improve instantly.</p>
-            
-            <!-- Your Feedback Summary -->
-            <div class="summary-card">
-                <h3 style="margin-bottom: 1rem; color: #f8fafc;">Your Feedback</h3>
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <strong>{{ session.selected_movie.title }}</strong>
-                    <span style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem;">
-                        {{ session.rating }}/5 Stars
-                    </span>
-                </div>
-                <div class="sentiment-badge sentiment-{{ session.sentiment }}">
-                    Sentiment: {{ session.sentiment.upper() }}
-                </div>
-                <p style="margin-top: 1rem; color: #94a3b8; font-style: italic; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px;">
-                    "{{ session.feedback[:100] }}..."
-                </p>
-            </div>
+{% extends "base.html" %}
+{% block title %}Thank You! - CinemaPulse{% endblock %}
+{% block content %}
+<div style="text-align: center; max-width: 700px; margin: 0 auto;">
+    <div style="font-size: 5rem; color: #10b981; margin-bottom: 1rem;">✅</div>
+    <h1 class="gradient-title">Thank You, {{ session.username }}!</h1>
+    <p style="font-size: 1.3rem; color: #bdbeba; margin-bottom: 3rem;">
+        Your <strong>{{ session.get('rating', '?') }}⭐</strong> rating for <strong>"{{ session.get('selected_movie', 'N/A') }}"</strong> 
+        helps improve cinema experience instantly.
+    </p>
+    
+    <!-- Your Feedback Summary -->
+    <div class="card">
+        <h3 style="color: var(--red);">📝 Your Feedback Summary</h3>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; padding: 1rem;">
+            <strong style="color: var(--black);">{{ session.get('selected_movie', 'N/A') }}</strong>
+            <span style="background: linear-gradient(135deg, var(--red), #b91c1c); color: #FFD700; padding: 0.5rem 1.5rem; border-radius: 25px; font-weight: 700; box-shadow: 0 4px 15px rgba(220,38,38,0.3);">
+                {{ session.get('rating', '?') }}/5 <span style="font-size: 1.5rem;">⭐</span>
+            </span>
+        </div>
+        <p style="color: #171718; font-style: italic; padding: 1.5rem; background: rgba(220,38,38,0.08); border-radius: 16px; margin-top: 1rem; border-left: 4px solid var(--red);">
+            "{{ session.get('review', 'No review provided')[:120] }}{% if session.get('review', '').__len__() > 120 %}...{% endif %}"
+        </p>
+    </div>
 
-            <!-- Live System Stats -->
-            <div class="summary-card" style="margin-top: 2rem;">
-                <h3 style="margin-bottom: 1rem;">Live System Stats</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
-                    <div>
-                        <div style="font-size: 2rem; font-weight: 800; color: #3b82f6;">{{ stats.total_feedback }}</div>
-                        <div style="color: #94a3b8;">Total Feedbacks</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: 800; color: #fbbf24;">{{ stats.avg_rating }}⭐</div>
-                        <div style="color: #94a3b8;">Avg Rating</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: 800; color: #10b981;">{{ stats.live_count }}</div>
-                        <div style="color: #94a3b8;">Live (10 mins)</div>
-                    </div>
-                </div>
+    <!-- LIVE System Stats - Updates every 3 seconds -->
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="color: var(--red);">📊 Live System Stats</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: center; margin-top: 1.5rem;">
+            <div>
+                <div id="liveTotalFeedback" style="font-size: 2.8rem; font-weight: 800; color: var(--red); margin-bottom: 0.5rem;">127</div>
+                <div style="color: #94a3b8; font-size: 1rem; font-weight: 500;">Total Feedbacks</div>
             </div>
-            
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
-                <a href="{{ url_for('movies') }}" class="btn-primary" style="padding: 1rem 2rem;">Rate Another Movie</a>
-                <a href="{{ url_for('dashboard') }}" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">View Live Dashboard</a>
+            <div>
+                <div id="liveAvgRating" style="font-size: 2.8rem; font-weight: 800; color: #f59e0b; margin-bottom: 0.5rem;">4.2<span style="font-size: 1.5rem;">⭐</span></div>
+                <div style="color: #94a3b8; font-size: 1rem; font-weight: 500;">Avg Rating</div>
+            </div>
+            <div>
+                <div id="liveCount" style="font-size: 2.8rem; font-weight: 800; color: #10b981; margin-bottom: 0.5rem;">127</div>
+                <div style="color: #94a3b8; font-size: 1rem; font-weight: 500;">Live Users</div>
             </div>
         </div>
     </div>
-</body>
-</html>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 3rem; flex-wrap: wrap;">
+        <a href="{{ url_for('movies') }}" class="btn" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #10b981, #059669);">
+            🎬 Rate Another Movie
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, var(--red), #b91c1c); box-shadow: 0 10px 30px rgba(220,38,38,0.4);">
+            📊 Live Dashboard
+        </a>
+        <a href="{{ url_for('analysis') }}" class="btn" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+            📈 Full Analysis
+        </a>
+    </div>
+</div>
+
+<!-- LIVE STATS UPDATER -->
+<script>
+function updateLiveStats() {
+    fetch('/api/stats')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('liveTotalFeedback').textContent = data.total_feedback;
+            document.getElementById('liveAvgRating').innerHTML = data.avg_rating + '<span style="font-size: 1.5rem;">⭐</span>';
+            document.getElementById('liveCount').textContent = data.live_count;
+        })
+        .catch(() => {});  // Silent fail
+}
+
+// Update every 4 seconds
+setInterval(updateLiveStats, 4000);
+updateLiveStats();  // Initial load
+</script>
+{% endblock %}

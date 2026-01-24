@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinemaPulse{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- NAVBAR & GLOBAL STYLES -->
+    <style>
+        :root {
+            --red: #dc2626;
+            --red-dark: #b91c1c;
+            --black: #0f0f0f;
+            --gray-900: #111827;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --white: #f9fafb;
+            --shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, var(--black) 0%, var(--gray-900) 100%);
+            color: var(--white); min-height: 100vh;
+        }
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.3); padding: 1rem 2rem;
+        }
+        .nav-container {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 800; color: var(--red);
+            text-decoration: none; letter-spacing: -0.5px;
+        }
+        .nav-links {
+            display: flex; list-style: none; gap: 2rem; align-items: center;
+        }
+        .nav-link {
+            color: var(--white); text-decoration: none; font-weight: 500;
+            padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: var(--red); background: rgba(220, 38, 38, 0.1);
+            transform: translateY(-1px);
+        }
+        .user-info {
+            background: var(--red-dark); color: var(--white); padding: 0.5rem 1rem;
+            border-radius: 20px; font-weight: 500; font-size: 0.9rem;
+        }
+        .container { max-width: 1200px; margin: 100px auto 2rem; padding: 0 2rem; }
+        .btn {
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            color: var(--white); border: none; padding: 12px 24px;
+            border-radius: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; font-size: 1rem; text-decoration: none; display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .card {
+            background: rgba(31, 41, 55, 0.9); border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 20px; padding: 2.5rem; backdrop-filter: blur(20px);
+        }
+        .flash { 
+            background: rgba(220, 38, 38, 0.2); color: var(--red-dark); 
+            padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid var(--red);
+        }
+        .gradient-title {
+            font-size: 3rem; margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        input, textarea, select {
+            width: 100%; padding: 14px; border: 2px solid rgba(220, 38, 38, 0.3);
+            border-radius: 12px; background: rgba(15, 15, 15, 0.8);
+            color: var(--white); font-size: 1rem; font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+        .stars { color: var(--red-dark); font-size: 2rem; cursor: pointer; display: inline-block; }
+        .stars span:hover { text-shadow: 0 0 10px #facc34; }
+        @media (max-width: 768px) {
+            .nav-links { gap: 1rem; }
+            .container { padding: 0 1rem; margin-top: 80px; }
+            .card { padding: 1.5rem; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="logo">CinemaPulse</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+                <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
+                {% if session.username %}
+                <li><span class="user-info">Hi, {{ session.username }}!</span></li>
+                <li><a href="{{ url_for('movies') }}" class="nav-link">Movies</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="nav-link">Analysis</a></li>
+                <li><a href="{{ url_for('logout') }}" class="nav-link">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('home') }}" class="nav-link">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

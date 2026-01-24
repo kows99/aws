@@ -1,29 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CinePulse - Get Started</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container splash">
-        <h1 class="logo">CinePulse</h1>
-        <p style="font-size: 1.3rem; margin-bottom: 3rem; color: #8cbff0;">Discover movies. Share your pulse.</p>
-        <form action="{{ url_for('username') }}" method="POST">
-            <input type="text" name="username" placeholder="Enter your name" required 
-                   style="width: 100%; max-width: 400px; padding: 1.2rem 1.5rem; font-size: 1.1rem; border: 2px solid #475569; border-radius: 12px; background: #1e293b; color: #f1f5f9; margin-bottom: 1.5rem; font-family: inherit;">
-            <button type="submit" class="btn-primary">Get Started →</button>
+{% extends "base.html" %}
+{% block title %}Home - CinemaPulse{% endblock %}
+{% block content %}
+<div style="text-align: center; max-width: 600px; margin: 0 auto;">
+    <h1 style="font-size:3rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--red),var(--red-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;">CinemaPulse</h1>
+    
+    <p style="font-size: 1.2rem; color: #9ca3af; margin-bottom: 3rem; font-weight: 500;">
+        Rate movies and see real-time analysis
+    </p>
+    
+    <div class="card">
+        <h2 style="color: var(--red); margin-bottom: 2rem;">Get Started</h2>
+        <form method="POST" style="display: grid; gap: 1.5rem;">
+            <input type="text" name="username" placeholder="Your Name" required maxlength="30">
+            <input type="email" name="email" placeholder="your.email@example.com" required maxlength="50">
+            <button type="submit" class="btn" style="font-size: 1.1rem; padding: 16px;">Enter CinemaPulse →</button>
         </form>
     </div>
-    <!-- Add this before closing </div> in all pages -->
-<div style="text-align: center; margin-top: 2rem;">
-    <a href="{{ url_for('dashboard') }}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
-        📊 View Live Analytics Dashboard
-    </a>
 </div>
-
-</body>
-</html>
-
+{% endblock %}

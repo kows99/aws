@@ -1,72 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback - {{ movie.title }} - CinePulse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <div class="feedback-container">
-            <h1 class="feedback-title">Your thoughts on</h1>
-            <div class="feedback-movie">{{ movie.title }}</div>
-            
-            <form method="POST">
-                <div class="stars" id="stars">
-                    <span class="star" data-rating="1" title="1 star">☆</span>
-                    <span class="star" data-rating="2" title="2 stars">☆</span>
-                    <span class="star" data-rating="3" title="3 stars">☆</span>
-                    <span class="star" data-rating="4" title="4 stars">☆</span>
-                    <span class="star" data-rating="5" title="5 stars">☆</span>
-                </div>
-                <input type="hidden" name="rating" id="rating" value="0">
-                
-                <textarea name="feedback" class="feedback-textarea" placeholder="What did you think about this movie? Share your honest feedback..." required></textarea>
-                
-                <button type="submit" class="btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.2rem;">Submit Feedback</button>
-            </form>
+{% extends "base.html" %}
+{% block title %}Rate {{ movie.title }} - CinemaPulse{% endblock %}
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h1 class="gradient-title">{{ movie.title }}</h1>
+    <p style="color: #9ca3af; margin-bottom: 2rem;">{{ movie.genre }} • Rate your experience</p>
+    
+    <form method="POST">  <!-- ✅ NO ACTION NEEDED -->
+        <input type="hidden" name="movie_title" value="{{ movie.title }}">
+        
+        <div class="card" style="margin-bottom: 2rem;">
+            <label style="font-weight: 800; margin-bottom: 1rem; display: block; color: var(--red);">⭐ Your Rating</label>
+            <div class="stars" style="margin-bottom: 1rem;">
+                <span data-rating="1">★</span>
+                <span data-rating="2">★</span>
+                <span data-rating="3">★</span>
+                <span data-rating="4">★</span>
+                <span data-rating="5">★</span>
+            </div>
+            <select name="rating" id="rating" required style="display: none;">
+                <option value="">Select rating</option>
+                {% for i in range(1, 6) %}
+                <option value="{{ i }}">{{ i }} Star{{ 's' if i > 1 else '' }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <!-- Add this before closing </div> in all pages -->
-<div style="text-align: center; margin-top: 2rem;">
-    <a href="{{ url_for('dashboard') }}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
-        📊 View Live Analytics Dashboard
-    </a>
+        
+        <div class="card">
+            <label style="font-weight: 600; margin-bottom: 1rem; display: block; color: var(--red);">Your Feedback</label>
+            <textarea name="review" rows="6" placeholder="What did you think about the movie? Be honest!" required></textarea>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1.5rem; font-size: 1.1rem;">Submit Feedback →</button>
+        </div>
+    </form>
 </div>
 
-    </div>
+<script>
+document.querySelectorAll('.stars span').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.dataset.rating;
+        document.getElementById('rating').value = rating;
+        document.querySelectorAll('.stars span').forEach(s => {
+            s.style.color = s.dataset.rating <= rating ? '#fbbf24' : '#9ca3af';  <!-- ✅ FIXED -->
+        });
+    });
+});
+</script>
 
-    <script>
-        const stars = document.querySelectorAll('.star');
-        const ratingInput = document.getElementById('rating');
-        
-        stars.forEach(star => {
-            star.addEventListener('mouseover', () => {
-                stars.forEach(s => s.classList.remove('filled', 'hovered'));
-                const rating = star.dataset.rating;
-                for(let i = 0; i < rating; i++) {
-                    stars[i].classList.add('hovered');
-                }
-            });
-            
-            star.addEventListener('click', () => {
-                const rating = star.dataset.rating;
-                ratingInput.value = rating;
-                stars.forEach(s => s.classList.remove('filled', 'hovered'));
-                for(let i = 0; i < rating; i++) {
-                    stars[i].classList.add('filled');
-                }
-            });
-        });
-        
-        document.querySelector('.stars').addEventListener('mouseleave', () => {
-            const rating = ratingInput.value;
-            stars.forEach((s, i) => {
-                s.classList.remove('hovered');
-                if (i < rating) s.classList.add('filled');
-            });
-        });
-    </script>
-</body>
-</html>
+<style>
+.stars span { 
+    font-size: 2.5rem; cursor: pointer; transition: all 0.3s; margin: 0 3px; color: #9ca3af;
+}
+.stars span:hover { transform: scale(1.2); }
+</style>
+{% endblock %}
