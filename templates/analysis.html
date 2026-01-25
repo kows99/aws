@@ -4,46 +4,72 @@
 <h1 class="gradient-title">🎬 Real-Time Analysis</h1>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+    <!-- YOUR FEEDBACK SUMMARY -->
     <div class="card" style="text-align: center;">
         <h3 style="color: var(--red);">Your Feedback Summary</h3>
         <div style="font-size: 3rem; color: #f59e0b; margin: 1rem 0;">
-            {{ session.get('rating', '?') }}/5 <span style="font-size: 2rem;">⭐</span>
+            {{ rating }}/5 <span style="font-size: 2rem;">⭐</span>
         </div>
-        <p style="color: #94a3b8; font-style: italic;">"{{ session.get('review', 'No review yet')[:100] }}..."</p>
-        <p style="color: var(--red); font-weight: 600;">Movie: {{ session.get('selected_movie', 'N/A') }}</p>
+        <p style="color: #0c0c0c; font-style: italic;">"{{ review[:100] }}..."</p>
+        <p style="color: var(--red); font-weight: 600;">Movie: {{ movie }}</p>
     </div>
     
+    <!-- ✅ REAL SENTIMENT FROM JSON DATA! -->
     <div class="card">
         <h3 style="color: var(--red);">Sentiment Analysis</h3>
+        {% set total = sentiments.positive + sentiments.neutral + sentiments.negative %}
         <div style="display: flex; gap: 1rem; margin: 1.5rem 0;">
             <div style="flex: 1; text-align: center;">
-                <div style="font-size: 2rem; color: #10b981;">👍</div>
-                <div style="font-weight: 600; font-size: 1.5rem;">75%</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">Positive</div>
+                <div style="font-size: 2rem; color: #10b981;">😊</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">
+                    {{ (sentiments.positive/total*100)|round(0) if total > 0 else 0 }}%
+                </div> 
+                <div style="color: #f7f5f5; font-size: 1.1rem;">Positive</div>
+                <span style="font-size: 1.2rem; color: #46189b;">{{ sentiments.positive }}</span>
             </div>
             <div style="flex: 1; text-align: center;">
-                <div style="font-size: 2rem; color: #f59e0b;">😐</div>
-                <div style="font-weight: 600; font-size: 1.5rem;">20%</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">Neutral</div>
+                <div style="font-size: 2rem; color: #5ce932;">😐</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">
+                    {{ (sentiments.neutral/total*100)|round(0) if total > 0 else 0 }}%
+                </div>
+                <div  style="color: #f7f5f5;font-size: 1.1rem;">Neutral</div>
+                <span style="font-size: 1.2rem; color: #46189b;">{{ sentiments.neutral }}</span>
             </div>
             <div style="flex: 1; text-align: center;">
-                <div style="font-size: 2rem; color: var(--red);">👎</div>
-                <div style="font-weight: 600; font-size: 1.5rem;">5%</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">Negative</div>
+                <div style="font-size: 2rem; color: var(--red);">😞</div>
+                <div style="font-weight: 600; font-size: 1.3rem;">
+                    {{ (sentiments.negative/total*100)|round(0) if total > 0 else 0 }}%
+                </div>
+                <div style="color: #f7f4f4; font-size: 1.1rem;">Negative</div>
+                <span style="font-size: 1.2rem; color: #46189b;">{{ sentiments.negative }}</span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ✅ REAL INSIGHTS FROM YOUR DATA! -->
 <div class="card" style="margin-top: 2rem;">
     <h3 style="color: var(--red);">Trend Insights</h3>
-    <p style="color: #94a3b8; line-height: 1.6; font-size: 1.1rem;">
-        Your <strong>{{ session.get('rating', 0)|int }}⭐</strong> rating contributes to the overall movie pulse. 
-        Recent trends show <strong>increasing positive sentiment</strong> for {{ session.get('selected_movie', 'this movie') }}.
+    {% set total = sentiments.positive + sentiments.neutral + sentiments.negative %}
+    <p style="color: #0d0d0e; line-height: 1.6; font-size: 1.1rem;">
+        {% if total > 0 %}
+            Your <strong>{{ rating }}⭐</strong> rating contributes to {{ total }} total feedbacks. 
+            Current sentiment: 
+            {% if sentiments.positive > sentiments.negative %}
+                <strong style="color: #04091d6b;">mostly POSITIVE</strong> 
+            {% elif sentiments.negative > sentiments.positive %}
+                <strong style="color: var(--red);">mostly NEGATIVE</strong>
+            {% else %}
+                <strong style="color: #f59e0b;">BALANCED</strong>
+            {% endif %}
+            across all movies!
+        {% else %}
+            Be the first to rate! Your feedback will kickstart the analytics. 🚀
+        {% endif %}
     </p>
     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
         <a href="{{ url_for('movies') }}" class="btn" style="padding: 1rem 2.5rem;">🎬 Rate Another Movie</a>
-        <a href="{{ url_for('dashboard') }}" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📊 Live Dashboard</a>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📊 All Feedbacks</a>
         <a href="{{ url_for('logout') }}" class="btn" style="background: linear-gradient(135deg, #6b7280, #4b5563);">Logout</a>
     </div>
 </div>

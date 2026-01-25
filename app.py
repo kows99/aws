@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import time
 import random
+import json
+from datetime import datetime
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+# ADD THIS FUNCTION (after imports)
 
 feedback_count = 0  # Global variable at module level
 
@@ -18,6 +23,31 @@ MOVIES = [
     {'id': 4, 'title': 'Red Fury', 'genre': 'Drama'},
     {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'}
 ]
+
+analyzer = SentimentIntensityAnalyzer()
+FEEDBACK_FILE = 'feedbacks.json'
+
+def load_feedbacks():
+    try:
+        with open(FEEDBACK_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_feedback(movie_title, rating, review, username):
+    sentiment = analyzer.polarity_scores(review)
+    feedback = {
+        'movie': movie_title, 'rating': int(rating), 'review': review,
+        'user': username, 
+        'sentiment': 'positive' if sentiment['compound'] >= 0.05 else 'neutral' if sentiment['compound'] > -0.05 else 'negative',
+        'time': datetime.now().isoformat()
+    }
+    feedbacks = load_feedbacks()
+    feedbacks.append(feedback)
+    with open(FEEDBACK_FILE, 'w') as f:
+        json.dump(feedbacks, f, indent=2)
+    return feedback
+
 
 # ✅ MOVIES ROUTE - Pass feedback_count
 @app.route('/movies')
@@ -38,52 +68,70 @@ def home():
         flash('Please enter both username and email')
     return render_template('home.html')
 
-
-
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('home'))
     
-    # ✅ THESE LINES MISSING?
-    rating = session.get('rating', 0)  # Gets user's LAST rating
-    review = session.get('review', '')  # Gets user's LAST review
-    movie = session.get('selected_movie', 'No movie selected')
-    total_feedback = feedback_count
+    feedbacks = load_feedbacks()
+    total_feedback = len(feedbacks)  # ✅ PERMANENT TOTAL!
     
-    return render_template('dashboard.html', 
-                         rating=rating, 
-                         review=review, 
-                         movie=movie,
-                         total_feedback=total_feedback)
-
+    # Sentiment analysis
+    sentiments = {'positive': 0, 'neutral': 0, 'negative': 0}
+    for fb in feedbacks:
+        sentiments[fb.get('sentiment', 'neutral')] += 1
+    
+    rating = session.get('rating', 0)
+    review = session.get('review', '')
+    movie = session.get('selected_movie', 'No movie')
+    
+    return render_template('dashboard.html',
+                         rating=rating, review=review, movie=movie,
+                         total_feedback=total_feedback,  # ✅ REAL NUMBER
+                         sentiments=sentiments,
+                         feedbacks=feedbacks[-10:])  # Last 10
 
 @app.route('/feedback/<int:movie_id>', methods=['GET', 'POST'])
 def feedback(movie_id):
-    global feedback_count
+    global feedback_count  # KEEP YOUR GLOBAL!
     
     if request.method == 'POST':
-        feedback_count += 1
-        session['rating'] = request.form['rating']
-        session['review'] = request.form['review']  # ✅ ADD THIS LINE
-        movie_title = MOVIES[movie_id-1]['title']
-        session['selected_movie'] = movie_title
-        flash(f'✅ {movie_title}: {session["rating"]}⭐ | Total: {feedback_count}')
+        # ✅ YOUR CODE + PERMANENT SAVE
+        feedback = save_feedback(
+            MOVIES[movie_id-1]['title'],
+            request.form['rating'],
+            request.form['review'],
+            session.get('username', 'Anonymous')
+        )
+        feedback_count += 1  # KEEP YOUR COUNTER!
+        session['rating'] = feedback['rating']
+        session['review'] = feedback['review']
+        session['selected_movie'] = feedback['movie']
+        flash(f'✅ {feedback["movie"]}: {feedback["rating"]}⭐ | {feedback["sentiment"].upper()} | Total: {feedback_count}')
         return redirect(url_for('dashboard'))
     
-    # GET - Show feedback form
-    if 'username' not in session:  # ✅ ADD LOGIN CHECK
+    # YOUR GET SECTION - UNCHANGED!
+    if 'username' not in session:
         return redirect(url_for('home'))
-    
     movie = MOVIES[movie_id-1]
     return render_template('feedback.html', movie=movie)
-
 
 @app.route('/analysis')
 def analysis():
     if 'username' not in session:
         return redirect(url_for('home'))
-    return render_template('analysis.html')
+    
+    # Same data as dashboard!
+    feedbacks = load_feedbacks()
+    sentiments = {'positive': 0, 'neutral': 0, 'negative': 0}
+    for fb in feedbacks:
+        sentiments[fb.get('sentiment', 'neutral')] += 1
+    
+    return render_template('analysis.html',
+                         rating=session.get('rating', 0),
+                         review=session.get('review', 'No review yet'),
+                         movie=session.get('selected_movie', 'No movie'),
+                         sentiments=sentiments)
 
 
 @app.route('/thankyou')
@@ -101,22 +149,6 @@ def logout():
     session.clear()
     flash('Logged out successfully')
     return redirect(url_for('home'))
-
-@app.route('/api/stats')
-def api_stats():
-    global feedback_count
-    avg_rating = round(4.2 + (feedback_count % 10) * 0.1, 1)  # Uses real count!
-    
-    return jsonify({
-        'total_feedback': feedback_count,  # 👈 REAL NUMBER!
-        'avg_rating': avg_rating,
-        'live_count': feedback_count,
-        'movies': [
-            {'title': m['title'], 'rating': 4.2, 'total': feedback_count//5, 'positive': feedback_count//2, 'neutral': 5, 'negative': 2}
-            for m in MOVIES[:3]
-        ]
-    })
-
 
 if __name__ == '__main__':
     app.run(debug=True)

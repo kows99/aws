@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Movies - CinemaPulse{% endblock %}
 {% block content %}
-<div class="gradient-title">🎥 Choose Movie to Rate</div>
+<div class="gradient-title">🎥 Choose Movie </div>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
     {% for movie in movies %}
     <div class="card" style="text-align: center; padding: 2rem;">
         <h3 style="color: var(--red); margin-bottom: 1rem;">{{ movie.title }}</h3>
-        <p style="color: #94a3b8; margin-bottom: 2rem;">{{ movie.genre }}</p>
+        <b><p style="color: #0c0c0c; margin-bottom: 2rem;">{{ movie.genre }}</p></b>
         
         <!-- ✅ YOUR WORKING URL -->
         <a href="{{ url_for('feedback', movie_id=movie.id) }}" class="btn" 

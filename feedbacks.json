@@ -1,0 +1,50 @@
+[
+  {
+    "movie": "Blood Moon Rising",
+    "rating": 5,
+    "review": "Scary but very nice!",
+    "user": "kowshalyavetrivel",
+    "sentiment": "positive",
+    "time": "2026-01-25T15:15:03.608281"
+  },
+  {
+    "movie": "Scarlet Shadows",
+    "rating": 2,
+    "review": "not that much thriller..",
+    "user": "kowshalyavetrivel",
+    "sentiment": "negative",
+    "time": "2026-01-25T15:15:45.203022"
+  },
+  {
+    "movie": "Dark Ember",
+    "rating": 4,
+    "review": "okay great movie",
+    "user": "kowshalyavetrivel",
+    "sentiment": "positive",
+    "time": "2026-01-25T15:16:10.063783"
+  },
+  {
+    "movie": "Crimson Vendetta",
+    "rating": 3,
+    "review": "good",
+    "user": "deviseshamalini",
+    "sentiment": "positive",
+    "time": "2026-01-25T15:17:10.890435"
+  },
+  {
+    "movie": "Red Fury",
+    "rating": 1,
+    "review": "nice",
+    "user": "kowshalyavetrivel",
+    "sentiment": "positive",
+    "time": "2026-01-25T16:50:48.685093"
+  },
+  {
+    "movie": "Red Fury",
+    "rating": 1,
+    "review": "nice music but bad story",
+    "user": "kowshalyavetrivel",
+    "sentiment": "negative",
+    "time": "2026-01-25T16:51:32.444418"
+  }
+]

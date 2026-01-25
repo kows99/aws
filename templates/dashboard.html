@@ -1,39 +1,64 @@
 {% extends "base.html" %}
-{% block title %}Live Dashboard - CinemaPulse{% endblock %}
 {% block content %}
 <div class="container">
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <h1 class="gradient-title">📊 Live Analytics</h1>
-        <div class="card" style="font-size: 1.2rem; padding: 1rem 2rem; display: inline-block; background: linear-gradient(135deg, var(--red), var(--red-dark));">
-            LIVE • <span id="liveCount">{{ total_feedback }}</span>
+    <h1 class="gradient-title" style="text-align: center;"> All Feedbacks Analytics</h1>
+    
+    <!-- TOTAL + SENTIMENT STATS -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin: 2rem 0;">
+        <div class="card">
+            <h2 style="color:brown">{{ total_feedback }}</h2>
+            <p>Total Feedbacks</p>
+        </div>
+        <div class="card">
+            <h2 style="color: #03581bf5;">{{ sentiments.positive }}</h2>
+            <p>😊 Positive</p>
+        </div>
+        <div class="card">
+            <h2 style="color: #fceb07;">{{ sentiments.neutral }}</h2>
+            <p>😐 Neutral</p>
+        </div>
+        <div class="card">
+            <h2 style="color: #ef4444;">{{ sentiments.negative }}</h2>
+            <p>😞 Negative</p>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-        <div class="card" style="text-align: center; padding: 2rem;">
-            <h3 style="color: var(--red);">Total Feedbacks</h3>
-            <div id="totalFeedback" style="font-size: 3.5rem; font-weight: 800; color: var(--red);">{{ total_feedback }}</div>
-        </div>
-        <div class="card" style="text-align: center; padding: 2rem;">
-            <h3 style="color: var(--red);">Your Rating</h3>
-            <div id="avgRating" style="font-size: 3.5rem; font-weight: 800; color: #f59e0b;">{{ rating }}⭐</div>
-            <p style="color: #94a3b8;">{{ movie }}</p>
-        </div>
-    </div>
-
-    <div class="card" style="max-width: 1000px; margin: 0 auto 3rem auto; padding: 2rem;">
-        <h3 style="text-align: center; color: var(--red);">Your Last Review</h3>
-        <div style="font-size: 1.2rem; color: var(--white); padding: 2rem; text-align: center;">
-            "{{ review }}" 
-            {% if review == 'No review yet' %}
-                <span style="color: #94a3b8;">→ Rate a movie to see it here!</span>
+    <!-- ✅ ALL FEEDBACKS LIST (replaces "Your Review") -->
+    <div class="card" style="max-width: 1000px; margin: 0 auto;">
+        <h3 style="text-align: center;">Latest Feedbacks</h3>
+        <div style="max-height: 400px; overflow-y: auto;">
+            {% for fb in feedbacks %}
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>{{ fb.movie }}</strong> • {{ fb.rating }}⭐<br>
+                    <small>"{{ fb.review[:60] }}..."</small>
+                </div>
+                <span style="padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;
+                   
+                {% if fb.sentiment == 'positive' %}
+                    background: rgba(16,185,129,0.2);
+                    color: #03581bf5;
+                    {% elif fb.sentiment == 'neutral' %}
+                    background: rgba(148,163,184,0.2); 
+                    color: #94a3b8;
+                    {% else %}
+                    background: rgba(239,68,68,0.2); 
+                    color: #ef4444;
+                    {% endif %}">
+                    {{ fb.sentiment.title() }}
+                </span>
+            </div>
+            {% endfor %}
+            {% if not feedbacks %}
+            <div style="text-align: center; padding: 3rem; color: #3c1b72cc;">
+                No feedbacks yet → Rate a movie!
+            </div>
             {% endif %}
         </div>
     </div>
 
     <div style="text-align: center; margin-top: 3rem;">
-        <a href="{{ url_for('movies') }}" class="btn" style="padding: 1rem 3rem;">← Rate More Movies</a>
-        <a href="{{ url_for('home') }}" class="btn" style="padding: 1rem 3rem; margin-left: 1rem; background: linear-gradient(135deg, #6b7280, #4b5563);">Logout</a>
+        <a href="{{ url_for('movies') }}" class="btn">Rate More →</a>
     </div>
 </div>
 {% endblock %}
