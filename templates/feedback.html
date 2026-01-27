@@ -3,7 +3,7 @@
 {% block content %}
 <div style="max-width: 600px; margin: 0 auto;">
     <h1 class="gradient-title">{{ movie.title }}</h1>
-    <p style="color: #9ca3af; margin-bottom: 2rem;">{{ movie.genre }} • Rate your experience</p>
+    <p style="color: #b4becc; margin-bottom: 2rem;">{{ movie.genre }} • Rate your experience</p>
     
     <form method="POST">  <!-- ✅ NO ACTION NEEDED -->
         <input type="hidden" name="movie_title" value="{{ movie.title }}">

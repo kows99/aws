@@ -9,14 +9,13 @@ from botocore.exceptions import ClientError
 app = Flask(__name__)
 app.secret_key = 'cinemapulse-redblack-2026-secret-key-change-this!'
 
-# ✅ YOUR MENTOR'S AWS SETUP
 REGION = 'us-east-1'
 dynamodb = boto3.resource('dynamodb', region_name=REGION)
 sns = boto3.client('sns', region_name=REGION)
 
-# ✅ YOUR 2 TABLES
 users_table = dynamodb.Table('Users')
 feedbacks_table = dynamodb.Table('Feedbacks')
+
 SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:604665149129:aws_capstone_topic'
 
 analyzer = SentimentIntensityAnalyzer()
@@ -26,10 +25,22 @@ MOVIES = [
     {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action'},
     {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller'},
     {'id': 4, 'title': 'Red Fury', 'genre': 'Drama'},
-    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'}
+    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'},
+    {'id': 6, 'title': 'Dragon', 'genre': 'Romantic action/drama'},
+    {'id': 7, 'title': 'Coolie','genre': 'Action Thriller'},
+    {'id': 8, 'title': 'Good Bad Ugly','genre': 'Action'},
+    {'id': 9, 'title': 'Madharaasi','genre': 'Drama'},
+    {'id': 10, 'title': 'Tourist Family','genre': 'Family comedy/drama'},
+    {'id': 11, 'title': 'Retro','genre': 'Romantic action'},
+    {'id': 12, 'title': 'Nesippaya','genre': 'Romantic thriller'},
+    {'id': 13, 'title': 'Kudumbasthan','genre': 'Drama'},         
+    {'id': 14, 'title': 'Sweetheart','genre': 'Romance'},        
+    {'id': 15, 'title': 'Otha Votu Muthaiya','genre': 'Comedy'}, 
+    {'id': 16, 'title': 'Bottle Radha','genre': 'Drama'}
+    
 ]
 
-# ✅ DYNAMODB FUNCTIONS (Replace JSON)
+# DYNAMODB FUNCTIONS (Replace JSON)
 def add_feedback(movie_id, movie_title, rating, review, username):
     feedback_id = str(uuid.uuid4())
     sentiment = analyzer.polarity_scores(review)
@@ -47,7 +58,7 @@ def add_feedback(movie_id, movie_title, rating, review, username):
         'created_at': datetime.now().isoformat()
     })
     
-    # SNS Notification to mentor!
+    # SNS Notification 
     try:
         sns.publish(
             TopicArn=SNS_TOPIC_ARN,
@@ -74,14 +85,11 @@ def get_feedback_count():
     response = feedbacks_table.scan(Select='COUNT')
     return response['Count']
 
-# ✅ ROUTES (SAME HTML TEMPLATES!)
 @app.route('/movies')
 def movies():
     if 'username' not in session:
         return redirect(url_for('home'))
-    return render_template('movies.html', 
-                         movies=MOVIES, 
-                         feedback_count=get_feedback_count())
+    return render_template('movies.html', movies=MOVIES, feedback_count=get_feedback_count())
 
 @app.route('/', methods=['GET', 'POST'])
 def home():

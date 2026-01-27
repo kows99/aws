@@ -5,9 +5,8 @@ import json
 from datetime import datetime
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# ADD THIS FUNCTION (after imports)
-
-feedback_count = 0  # Global variable at module level
+# ADD THIS FUNCTION (after imports)  # Global variable at module level
+feedback_count = 0
 
 app = Flask(__name__)
 app.secret_key = 'cinemapulse-redblack-2026-secret-key-change-this!'
@@ -21,7 +20,19 @@ MOVIES = [
     {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action'},
     {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller'},
     {'id': 4, 'title': 'Red Fury', 'genre': 'Drama'},
-    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'}
+    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'},
+    {'id': 6, 'title': 'Dragon', 'genre': 'Romantic action/drama'},
+    {'id': 7, 'title': 'Coolie','genre': 'Action Thriller'},
+    {'id': 8, 'title': 'Good Bad Ugly','genre': 'Action'},
+    {'id': 9, 'title': 'Madharaasi','genre': 'Drama'},
+    {'id': 10, 'title': 'Tourist Family','genre': 'Family comedy/drama'},
+    {'id': 11, 'title': 'Retro','genre': 'Romantic action'},
+    {'id': 12, 'title': 'Nesippaya','genre': 'Romantic thriller'},
+    {'id': 13, 'title': 'Kudumbasthan','genre': 'Drama'},         
+    {'id': 14, 'title': 'Sweetheart','genre': 'Romance'},        
+    {'id': 15, 'title': 'Otha Votu Muthaiya','genre': 'Comedy'}, 
+    {'id': 16, 'title': 'Bottle Radha','genre': 'Drama'}
+    
 ]
 
 analyzer = SentimentIntensityAnalyzer()
