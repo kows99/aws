@@ -5,9 +5,11 @@ import time
 from datetime import datetime
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from botocore.exceptions import ClientError
+import os
 
 app = Flask(__name__)
-app.secret_key = 'cinemapulse-redblack-2026-secret-key-change-this!'
+# Use an environment variable, with a fallback only for local dev
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'default-dev-key-123')
 
 REGION = 'us-east-1'
 dynamodb = boto3.resource('dynamodb', region_name=REGION)
@@ -116,25 +118,45 @@ def home():
 
 @app.route('/feedback/<int:movie_id>', methods=['GET', 'POST'])
 def feedback(movie_id):
-    if request.method == 'POST':
-        movie_title = MOVIES[movie_id-1]['title']
-        feedback = add_feedback(
-            movie_id, movie_title,
-            request.form['rating'],
-            request.form['review'],
-            session.get('username', 'Anonymous')
-        )
-        
-        session['rating'] = feedback['rating']
-        session['review'] = request.form['review']
-        session['selected_movie'] = feedback['movie_title']
-        flash(f'✅ {feedback["movie_title"]}: {feedback["rating"]}⭐ | {feedback["sentiment"].upper()} | Total: {get_feedback_count()}')
-        return redirect(url_for('dashboard'))
-    
+    # 1. Access Check
     if 'username' not in session:
         return redirect(url_for('home'))
+
+    # 2. Secure Movie Lookup (Prevents IndexError)
+    movie = next((m for m in MOVIES if m['id'] == movie_id), None)
+    if not movie:
+        flash("❌ Movie not found!")
+        return redirect(url_for('movies'))
+
+    if request.method == 'POST':
+        try:
+            # 3. Process Feedback
+            rating = request.form.get('rating')
+            review = request.form.get('review')
+            
+            fb_result = add_feedback(
+                movie_id, 
+                movie['title'],
+                rating,
+                review,
+                session.get('username', 'Anonymous')
+            )
+            
+            # 4. Store in Session for the Dashboard
+            session['rating'] = fb_result['rating']
+            session['review'] = review
+            session['selected_movie'] = fb_result['movie_title']
+            
+            # 5. Success Notification
+            flash(f'✅ {fb_result["movie_title"]} submitted! Sentiment: {fb_result["sentiment"].upper()}')
+            return redirect(url_for('dashboard'))
+            
+        except Exception as e:
+            # AWS logs will catch this error
+            print(f"Deployment Error: {e}")
+            flash("⚠️ Failed to save feedback. Please try again.")
+            return redirect(url_for('movies'))
     
-    movie = MOVIES[movie_id-1]
     return render_template('feedback.html', movie=movie)
 
 @app.route('/dashboard')
