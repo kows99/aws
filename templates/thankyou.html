@@ -9,7 +9,6 @@
         helps improve cinema experience instantly.
     </p>
     
-    <!-- Your Feedback Summary -->
     <div class="card">
         <h3 style="color: var(--red);">📝 Your Feedback Summary</h3>
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; padding: 1rem;">
@@ -23,7 +22,6 @@
         </p>
     </div>
 
-    <!-- LIVE System Stats - Updates every 3 seconds -->
     <div class="card" style="margin-top: 2rem;">
         <h3 style="color: var(--red);">📊 Live System Stats</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: center; margin-top: 1.5rem;">
@@ -55,7 +53,6 @@
     </div>
 </div>
 
-<!-- LIVE STATS UPDATER -->
 <script>
 function updateLiveStats() {
     fetch('/api/stats')
@@ -65,11 +62,10 @@ function updateLiveStats() {
             document.getElementById('liveAvgRating').innerHTML = data.avg_rating + '<span style="font-size: 1.5rem;">⭐</span>';
             document.getElementById('liveCount').textContent = data.live_count;
         })
-        .catch(() => {});  // Silent fail
+        .catch(() => {});  
 }
 
-// Update every 4 seconds
-setInterval(updateLiveStats, 4000);
-updateLiveStats();  // Initial load
+setInterval(updateLiveStats, 3000);
+updateLiveStats();  
 </script>
 {% endblock %}

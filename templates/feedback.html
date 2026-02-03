@@ -5,9 +5,8 @@
     <h1 class="gradient-title">{{ movie.title }}</h1>
     <p style="color: #b4becc; margin-bottom: 2rem;">{{ movie.genre }} • Rate your experience</p>
     
-    <form method="POST">  <!-- ✅ NO ACTION NEEDED -->
+    <form method="POST">  
         <input type="hidden" name="movie_title" value="{{ movie.title }}">
-        
         <div class="card" style="margin-bottom: 2rem;">
             <label style="font-weight: 800; margin-bottom: 1rem; display: block; color: var(--red);">⭐ Your Rating</label>
             <div class="stars" style="margin-bottom: 1rem;">

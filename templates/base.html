@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CinemaPulse{% endblock %}</title>
+    <title>{% block title %}Welcome To CinemaPulse{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- NAVBAR & GLOBAL STYLES -->
     <style>
         :root {
             --red: #dc2626;
@@ -75,16 +74,30 @@
             -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent; font-weight: 800;
         }
+        .movie-poster {
+             width: 100%; max-width: 200px; height: 280px; 
+             object-fit: cover; border-radius: 12px; 
+             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .hero-poster {
+            width: 100%; max-height: 400px; object-fit: cover; 
+            border-radius: 20px; margin: 1rem 0; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
         input, textarea, select {
             width: 100%; padding: 14px; border: 2px solid rgba(220, 38, 38, 0.3);
             border-radius: 12px; background: rgba(15, 15, 15, 0.8);
             color: var(--white); font-size: 1rem; font-family: inherit;
             transition: all 0.3s ease;
         }
+
         input:focus, textarea:focus, select:focus {
             outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
         }
+
         .stars { color: var(--red-dark); font-size: 2rem; cursor: pointer; display: inline-block; }
+
         .stars span:hover { text-shadow: 0 0 10px #facc34; }
         @media (max-width: 768px) {
             .nav-links { gap: 1rem; }

@@ -110,5 +110,69 @@
     "user": "Kowshalya V",
     "sentiment": "positive",
     "time": "2026-02-03T11:01:43.855198"
+  },
+  {
+    "movie": "Anand",
+    "rating": 5,
+    "review": "One of the best film ever in telugu cinema.",
+    "user": "Kowshalya V",
+    "sentiment": "positive",
+    "time": "2026-02-03T13:42:11.942936"
+  },
+  {
+    "movie": "Gothavari",
+    "rating": 5,
+    "review": "lovely movie..!!!",
+    "user": "Kowshalya V",
+    "sentiment": "positive",
+    "time": "2026-02-03T13:43:18.535440"
+  },
+  {
+    "movie": "Anand",
+    "rating": 5,
+    "review": "Very nice..",
+    "user": "deviseshamalini",
+    "sentiment": "positive",
+    "time": "2026-02-03T14:09:15.387086"
+  },
+  {
+    "movie": "Crimson Vendetta",
+    "rating": 2,
+    "review": "bad acting",
+    "user": "kowshalyavetrivel",
+    "sentiment": "negative",
+    "time": "2026-02-03T15:21:31.226899"
+  },
+  {
+    "movie": "Crimson Vendetta",
+    "rating": 1,
+    "review": "good",
+    "user": "deviseshamalini",
+    "sentiment": "positive",
+    "time": "2026-02-03T15:25:10.655876"
+  },
+  {
+    "movie": "Gothavari",
+    "rating": 5,
+    "review": "Wonderful movie..\r\n",
+    "user": "kirthika",
+    "sentiment": "positive",
+    "time": "2026-02-03T18:28:29.460074"
+  },
+  {
+    "movie": "City Of Ember",
+    "rating": 3,
+    "review": "very  nice\r\n",
+    "user": "kowshalyavetrivel",
+    "sentiment": "positive",
+    "time": "2026-02-03T20:22:17.797679"
+  },
+  {
+    "movie": "Gothavari",
+    "rating": 5,
+    "review": "Aww!! Nice love story..",
+    "user": "Kowshalya V",
+    "sentiment": "positive",
+    "time": "2026-02-03T22:05:46.120948"
   }
 ]

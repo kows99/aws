@@ -5,33 +5,33 @@ import json
 from datetime import datetime
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# ADD THIS FUNCTION (after imports)  # Global variable at module level
 feedback_count = 0
 
 app = Flask(__name__)
 app.secret_key = 'cinemapulse-redblack-2026-secret-key-change-this!'
 
-users_db = []  # List of user dictionaries
+users_db = []  
 feedback_db = []
-# Sample movies data
-# ✅ FIXED - Add global feedback_count to movies.html context
+
 MOVIES = [
-    {'id': 1, 'title': 'Blood Moon Rising', 'genre': 'Horror'},
-    {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action'},
-    {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller'},
-    {'id': 4, 'title': 'Red Fury', 'genre': 'Drama'},
-    {'id': 5, 'title': 'Dark Ember', 'genre': 'Sci-Fi'},
-    {'id': 6, 'title': 'Dragon', 'genre': 'Romantic action/drama'},
-    {'id': 7, 'title': 'Coolie','genre': 'Action Thriller'},
-    {'id': 8, 'title': 'Good Bad Ugly','genre': 'Action'},
-    {'id': 9, 'title': 'Madharaasi','genre': 'Drama'},
-    {'id': 10, 'title': 'Tourist Family','genre': 'Family comedy/drama'},
-    {'id': 11, 'title': 'Retro','genre': 'Romantic action'},
-    {'id': 12, 'title': 'Nesippaya','genre': 'Romantic thriller'},
-    {'id': 13, 'title': 'Kudumbasthan','genre': 'Drama'},         
-    {'id': 14, 'title': 'Sweetheart','genre': 'Romance'},        
-    {'id': 15, 'title': 'Otha Votu Muthaiya','genre': 'Comedy'}, 
-    {'id': 16, 'title': 'Bottle Radha','genre': 'Drama'}
+    {'id': 1, 'title': 'Blood Moon Rising', 'genre': 'Horror' , 'image_url': 'static/images/bmr.jpg'},
+    {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action' , 'image_url': 'static/images/cv.jpg'},
+    {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller' , 'image_url': 'static/images/ss.jpg'},
+    {'id': 4, 'title': 'Red Fury', 'genre': 'Drama' , 'image_url': 'static/images/red fury.jpg'},
+    {'id': 5, 'title': 'City Of Ember', 'genre': 'Adventure', 'image_url': 'static/images/city of ember.jpg'},
+    {'id': 6, 'title': 'Dragon', 'genre': 'Romantic action/drama' , 'image_url': 'static/images/dragon.jpeg'},
+    {'id': 7, 'title': 'Jailer','genre': 'Action Thriller', 'image_url': 'static/images/jailer.jpg'},
+    {'id': 8, 'title': 'Good Bad Ugly','genre': 'Action', 'image_url': 'static/images/good bad ugly.jpg'},
+    {'id': 9, 'title': 'Madharaasi','genre': 'Drama', 'image_url': 'static/images/madharaasi.jpg'},
+    {'id': 10, 'title': 'Tourist Family','genre': 'Family comedy/drama', 'image_url': 'static/images/tourist family.jpg'},
+    {'id': 11, 'title': 'Retro','genre': 'Romantic action', 'image_url': 'static/images/Retro.jpg'},
+    {'id': 12, 'title': 'Nesippaya','genre': 'Romantic thriller', 'image_url': 'static/images/nesipaaya.jpg'},
+    {'id': 13, 'title': 'Kudumbasthan','genre': 'Drama' ,'image_url': 'static/images/kudumbasthan.jpg'},         
+    {'id': 14, 'title': 'Sweetheart','genre': 'Romance', 'image_url': 'static/images/sweet heart.jpg'},
+    {'id': 15, 'title': 'Sirai', 'genre': 'Crime Drama', 'image_url': 'static/images/sirai.jpg'}, 
+    {'id': 16, 'title': 'Bottle Radha','genre':'Drama', 'image_url':'static/images/bottle radha.jpg'},
+    {'id': 17,	'title':'Gothavari','genre':'Romantic drama', 'image_url':'static/images/godavari.jpg'},
+    {'id': 18,	'title':'Anand','genre':'Romantic drama', 'image_url':'static/images/anand.jpg'}
     
 ]
 
@@ -59,8 +59,6 @@ def save_feedback(movie_title, rating, review, username):
         json.dump(feedbacks, f, indent=2)
     return feedback
 
-
-# ✅ MOVIES ROUTE - Pass feedback_count
 @app.route('/movies')
 def movies():
     if 'username' not in session:
@@ -85,7 +83,7 @@ def dashboard():
         return redirect(url_for('home'))
     
     feedbacks = load_feedbacks()
-    total_feedback = len(feedbacks)  # ✅ PERMANENT TOTAL!
+    total_feedback = len(feedbacks) 
     
     # Sentiment analysis
     sentiments = {'positive': 0, 'neutral': 0, 'negative': 0}
@@ -98,30 +96,28 @@ def dashboard():
     
     return render_template('dashboard.html',
                          rating=rating, review=review, movie=movie,
-                         total_feedback=total_feedback,  # ✅ REAL NUMBER
+                         total_feedback=total_feedback, 
                          sentiments=sentiments,
-                         feedbacks=feedbacks[-10:])  # Last 10
+                         feedbacks=feedbacks[-10:]) 
 
 @app.route('/feedback/<int:movie_id>', methods=['GET', 'POST'])
 def feedback(movie_id):
-    global feedback_count  # KEEP YOUR GLOBAL!
+    global feedback_count  
     
     if request.method == 'POST':
-        # ✅ YOUR CODE + PERMANENT SAVE
         feedback = save_feedback(
             MOVIES[movie_id-1]['title'],
             request.form['rating'],
             request.form['review'],
             session.get('username', 'Anonymous')
         )
-        feedback_count += 1  # KEEP YOUR COUNTER!
+        feedback_count += 1 
         session['rating'] = feedback['rating']
         session['review'] = feedback['review']
         session['selected_movie'] = feedback['movie']
         flash(f'✅ {feedback["movie"]}: {feedback["rating"]}⭐ | {feedback["sentiment"].upper()} | Total: {feedback_count}')
         return redirect(url_for('dashboard'))
     
-    # YOUR GET SECTION - UNCHANGED!
     if 'username' not in session:
         return redirect(url_for('home'))
     movie = MOVIES[movie_id-1]
@@ -146,7 +142,7 @@ def analysis():
 
 
 @app.route('/thankyou')
-def thank_you():  # ← ADD THIS ENTIRE FUNCTION
+def thank_you(): 
     if 'username' not in session:
         return redirect(url_for('home'))
     return render_template('thankyou.html')
