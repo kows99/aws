@@ -86,5 +86,29 @@
     "user": "deviseshamalini",
     "sentiment": "negative",
     "time": "2026-01-28T14:58:30.478258"
+  },
+  {
+    "movie": "Retro",
+    "rating": 4,
+    "review": "I love this movie.",
+    "user": "Kowshalya V",
+    "sentiment": "positive",
+    "time": "2026-02-03T09:52:18.290389"
+  },
+  {
+    "movie": "Dragon",
+    "rating": 1,
+    "review": "One of the worst movie. Love the music.",
+    "user": "Kowshalya V",
+    "sentiment": "neutral",
+    "time": "2026-02-03T09:53:10.995703"
+  },
+  {
+    "movie": "Crimson Vendetta",
+    "rating": 2,
+    "review": "good",
+    "user": "Kowshalya V",
+    "sentiment": "positive",
+    "time": "2026-02-03T11:01:43.855198"
   }
 ]
