@@ -115,7 +115,7 @@ def home():
                 flash('❌ Email mismatch!')
                 return render_template('home.html')
         else:
-            # ✅ NEW USER - Create automatically!
+            
             users_table.put_item(Item={
                 'username': username,
                 'email': email,
@@ -162,7 +162,7 @@ def feedback(movie_id):
                 review,
                 session.get('username', 'Anonymous')
             )
-              users_table.update_item(
+            users_table.update_item(
                 Key={'username': session['username']},
                 UpdateExpression="ADD total_ratings :val SET movies_rated = list_append(if_not_exists(movies_rated, :empty_list), :movie)",
                 ExpressionAttributeValues={
