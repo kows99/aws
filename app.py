@@ -14,7 +14,7 @@ users_db = []
 feedback_db = []
 
 MOVIES = [
-    {'id': 1, 'title': 'Blood Moon Rising', 'genre': 'Horror' , 'image_url': 'static/images/bmr.jpg'},
+    {'id': 1, 'title': 'Blood Moon Rising', 'genre': 'Horror' , 'image_url': 'static/images/BMR.jpg'},
     {'id': 2, 'title': 'Crimson Vendetta', 'genre': 'Action' , 'image_url': 'static/images/cv.jpg'},
     {'id': 3, 'title': 'Scarlet Shadows', 'genre': 'Thriller' , 'image_url': 'static/images/ss.jpg'},
     {'id': 4, 'title': 'Red Fury', 'genre': 'Drama' , 'image_url': 'static/images/red fury.jpg'},
