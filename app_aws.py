@@ -145,6 +145,7 @@ def home():
 def feedback(movie_id):
     if 'username' not in session:
         return redirect(url_for('home'))
+
     movie = next((m for m in MOVIES if m['id'] == movie_id), None)
     if not movie:
         flash("❌ Movie not found!")
@@ -154,14 +155,15 @@ def feedback(movie_id):
         try:
             rating = request.form.get('rating')
             review = request.form.get('review')
-            
+
             fb_result = add_feedback(
-                movie_id, 
+                movie_id,
                 movie['title'],
                 rating,
                 review,
                 session.get('username', 'Anonymous')
             )
+
             users_table.update_item(
                 Key={'username': session['username']},
                 UpdateExpression="ADD total_ratings :val SET movies_rated = list_append(if_not_exists(movies_rated, :empty_list), :movie)",
@@ -171,20 +173,19 @@ def feedback(movie_id):
                     ':empty_list': []
                 }
             )
+
             session['rating'] = fb_result['rating']
             session['review'] = review
             session['selected_movie'] = fb_result['movie_title']
-            
-            # 5. Success Notification
+
             flash(f'✅ {fb_result["movie_title"]} submitted! Sentiment: {fb_result["sentiment"].upper()}')
             return redirect(url_for('dashboard'))
-            
+
         except Exception as e:
-            # AWS logs will catch this error
             print(f"Deployment Error: {e}")
             flash("⚠️ Failed to save feedback. Please try again.")
             return redirect(url_for('movies'))
-    
+
     return render_template('feedback.html', movie=movie)
 
 @app.route('/dashboard')
