@@ -17,7 +17,7 @@ sns = boto3.client('sns', region_name=REGION)
 users_table = dynamodb.Table('Users')
 feedbacks_table = dynamodb.Table('Feedbacks')
 
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:604665149129:aws_capstone_topic'
+SNS_TOPIC_ARN = "arn:aws:sns:us-east-1:476114133698:aws_capstone_topic"
 
 analyzer = SentimentIntensityAnalyzer()
 
